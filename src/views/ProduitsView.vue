@@ -15,7 +15,7 @@
         <tr v-if="!data.listeProduits">
           <td colspan="4">Veuillez patienter, chargement des produits...</td>
         </tr>
-        <!-- Si le tableau des catégories n'est pas vide -->
+        <!-- Si le tableau des produits n'est pas vide -->
         <tr v-for="produit in data.listeProduits" :key="produit.reference">
           <td>{{ produit.nom }}</td>
           <td>{{ produit.prixUnitaire }}</td>
@@ -24,16 +24,24 @@
         </tr>
         <tr>
           <td>
-            <button @click="chargeProduits()">Premier</button>
+            <button @click="chargerProduitsVoulus(data.links.first.href)">
+              Premier
+            </button>
           </td>
           <td>
-            <button @click="chargeProduits()">Précédent</button>
+            <button @click="chargerProduitsVoulus(data.links.prev.href)">
+              Précédent
+            </button>
           </td>
           <td>
-            <button @click="chargeProduits()">Suivant</button>
+            <button @click="chargerProduitsVoulus(data.links.next.href)">
+              Suivant
+            </button>
           </td>
           <td>
-            <button @click="chargeLastProduits()">Dernier</button>
+            <button @click="chargerProduitsVoulus(data.links.last.href)">
+              Dernier
+            </button>
           </td>
         </tr>
       </table>
@@ -52,8 +60,6 @@ const produitVide = {
 };
 
 let data = reactive({
-  // Les données saisies dans le formulaire
-  formulaireProduit: { ...produitVide },
   // La liste des produits affichée sous forme de table
   listeProduits: [],
   links: {},
@@ -73,19 +79,12 @@ function chargeProduits() {
     .catch((error) => alert(error.message));
 }
 
-function chargeFirstProduits() {
-  doAjaxRequest(BACKEND + "/api/produits?sort=reference,asc&page=0&size=5")
+function chargerProduitsVoulus(href) {
+  doAjaxRequest(href)
     .then((json) => {
       data.listeProduits = json._embedded.produits;
-    })
-    .catch((error) => alert(error.message));
-}
-
-function chargeLastProduits() {
-  let urlLast = dataJSON.links.last.href;
-  doAjaxRequest(BACKEND + urllast)
-    .then((json) => {
-      data.listeProduits = json._embedded.produits;
+      data.links = json._links;
+      data.page = json.page;
     })
     .catch((error) => alert(error.message));
 }
